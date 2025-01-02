@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useCookies } from "react-cookie";
 import { url } from "../utils/Url";
+import UserDetails from "../components/User/UserDetails";
 
 const User = () => {
   const { loading, isValid } = useTokenValidation();
@@ -22,7 +23,7 @@ const User = () => {
       const res = await axios.post(`${url}/logout`, null, {
         withCredentials: true,
       });
-
+ 
       if (res.status === 200) {
         removeCookie("accessToken");
         removeCookie("refreshToken");
@@ -39,14 +40,13 @@ const User = () => {
 
   return (
     <div>
-      <h1>In User Component</h1>
-      {isValid ? <p>Welcome, authenticated user!</p> : <p>Please log in.</p>}
       <button
         onClick={logOutHandler}
         className="mt-4 px-6 py-2 text-white bg-red-500 rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-opacity-75"
       >
         Log Out
       </button>
+      <UserDetails/>
     </div>
   );
 };
