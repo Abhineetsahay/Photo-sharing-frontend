@@ -21,100 +21,169 @@ const Register = () => {
     formState: { errors },
   } = useForm<RegisterData>();
 
-  const navigate=useNavigate();
+  const navigate = useNavigate();
   const onSubmit = async (data: RegisterData) => {
     const formData = new FormData();
     formData.append("username", data.username);
     formData.append("email", data.email);
     formData.append("password", data.password);
-  
+
     if (data.file && data.file[0]) {
       formData.append("file", data.file[0]);
     }
-  
+
     try {
       const response = await axios.post(`${url}/register`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      if (response.status === 200||response.status === 201) {
+      if (response.status === 200 || response.status === 201) {
         const cookies = new Cookies();
-        cookies.set("accessToken",response.data.accessToken);
-        cookies.set("refreshToken",response.data.refreshToken);
+        cookies.set("accessToken", response.data.accessToken);
+        cookies.set("refreshToken", response.data.refreshToken);
         toast.success("User Created Successfully");
         navigate("/UserProfile");
-
       }
     } catch (error) {
       console.error(error);
+      toast.error("Error creating user");
     }
   };
-  
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.5 }}
-      className="p-6 bg-white shadow-lg rounded-lg"
+      initial={{ opacity: 0, scale: 0.8, x: -100, y: -100, rotate: -10 }}
+      animate={{
+        opacity: 1,
+        scale: 1,
+        x: 0,
+        y: 0,
+        rotate: 0,
+      }}
+      transition={{
+        duration: 0.8,
+        ease: [0.6, -0.05, 0.01, 0.99],
+        type: "spring",
+        stiffness: 90,
+        damping: 10,
+      }}
+      className="p-6 bg-[#183D3D] rounded-lg w-full max-w-md mx-auto sm:mx-auto lg:max-w-lg lg:p-8 shadow-lg"
     >
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">Register</h2>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" encType="multipart/form-data">
-        <div className="flex items-center border rounded-lg px-3 py-2">
-          <FaUserAlt className="text-gray-400 mr-2" />
+      <h2 className="text-2xl font-bold text-white mb-4 text-center">
+        Register
+      </h2>
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="space-y-4"
+        encType="multipart/form-data"
+      >
+        {/* Username */}
+        <label
+          htmlFor="username"
+          className="flex text-sm font-medium text-white"
+        >
+          Enter your Username
+        </label>
+        <motion.div
+          className="flex items-center border rounded-lg px-3 py-2"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          <FaUserAlt className="text-gray-300 mr-2" />
           <input
             type="text"
+            id="username"
             placeholder="Username"
             {...register("username", { required: "Username is required" })}
-            className="w-full outline-none text-gray-800"
+            className="w-full outline-none bg-inherit text-white"
           />
-        </div>
+        </motion.div>
         {errors.username && (
-          <p className="text-red-500 text-sm">{String(errors.username.message)}</p>
+          <p className="text-red-500 text-sm">
+            {String(errors.username.message)}
+          </p>
         )}
-
-        <div className="flex items-center border rounded-lg px-3 py-2">
-          <FaEnvelope className="text-gray-400 mr-2" />
+        
+        <label htmlFor="email" className="flex text-sm font-medium text-white">
+          Enter your Email
+        </label>
+        <motion.div
+          className="flex items-center border rounded-lg px-3 py-2"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          <FaEnvelope className="text-gray-300 mr-2" />
           <input
             type="email"
+            id="email"
             placeholder="Email"
             {...register("email", { required: "Email is required" })}
-            className="w-full outline-none text-gray-800"
+            className="w-full outline-none bg-inherit text-white"
           />
-        </div>
+        </motion.div>
         {errors.email && (
           <p className="text-red-500 text-sm">{String(errors.email.message)}</p>
         )}
 
-        <div className="flex items-center border rounded-lg px-3 py-2">
-          <FaLock className="text-gray-400 mr-2" />
+        <label
+          htmlFor="password"
+          className="flex text-sm font-medium text-white"
+        >
+          Enter your Password
+        </label>
+        <motion.div
+          className="flex items-center border rounded-lg px-3 py-2"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          <FaLock className="text-gray-300 mr-2" />
           <input
             type="password"
+            id="password"
             placeholder="Password"
             {...register("password", { required: "Password is required" })}
-            className="w-full outline-none text-gray-800"
+            className="w-full outline-none bg-inherit text-white"
           />
-        </div>
+        </motion.div>
         {errors.password && (
-          <p className="text-red-500 text-sm">{String(errors.password.message)}</p>
+          <p className="text-red-500 text-sm">
+            {String(errors.password.message)}
+          </p>
         )}
 
-        <div className="flex items-center border rounded-lg px-3 py-2">
-          <FaImage className="text-gray-400 mr-2" />
+        <label
+          htmlFor="profilePicture"
+          className="flex text-sm font-medium text-white"
+        >
+          Enter your Profile Picture
+        </label>
+        <motion.div
+          className="flex items-center border rounded-lg px-3 py-2"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          <FaImage className="text-gray-300 mr-2" />
           <input
             type="file"
-            accept="image/png"
+            id="profilePicture"
+            accept="image/*"
             {...register("file")}
-            className="w-full outline-none text-gray-800"
-            placeholder="ma"
+            className="w-full outline-none bg-inherit text-white"
+            placeholder="Choose profile picture"
           />
-        </div>
+        </motion.div>
 
-        <button
+        <motion.button
           type="submit"
-          className="w-full px-6 py-2 text-white bg-blue-500 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75"
+          className="w-full px-6 py-2 text-white bg-[#21684e] rounded hover:bg-white hover:text-[#325c4d] transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-[#93B1A6] focus:ring-opacity-75"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
         >
           Register
-        </button>
+        </motion.button>
       </form>
     </motion.div>
   );

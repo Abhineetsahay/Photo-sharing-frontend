@@ -1,99 +1,122 @@
-import { useState } from "react";
+import { useForm, SubmitHandler } from "react-hook-form";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { url } from "../../utils/Url";
 import toast from "react-hot-toast";
+import { Cookies } from "react-cookie";
+import { motion } from "framer-motion";
+
+interface LoginFormInputs {
+  usernameOrEmail: string;
+  password: string;
+}
 
 const Login = () => {
-  const [formData, setFormData] = useState({ usernameOrEmail: "", password: "" });
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormInputs>();
+
   const navigate = useNavigate();
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
-
-    if (!formData.usernameOrEmail || !formData.password) {
-      setError("Please fill out all fields.");
-      setLoading(false);
-      return;
-    }
-
+  const onSubmit: SubmitHandler<LoginFormInputs> = async (data) => {
     try {
       const response = await axios.post(
         `${url}/login`,
         {
-          username: formData.usernameOrEmail,
-          email: formData.usernameOrEmail,
-          password: formData.password,
+          username: data.usernameOrEmail,
+          email: data.usernameOrEmail,
+          password: data.password,
         },
         {
-          withCredentials: true, // Ensures cookies are sent with the request
+          withCredentials: true,
         }
       );
 
       if (response.status === 200) {
         toast.success("Login successful!");
+        const cookies = new Cookies();
+        cookies.set("accessToken", response.data.accessToken);
+        cookies.set("refreshToken", response.data.refreshToken);
         navigate("/UserProfile");
       }
     } catch (err: unknown) {
-    //   setError(err.response?.data?.message || "Login failed. Please try again.");
       toast.error("Login failed!");
       console.error("Login error:", err);
-    } finally {
-      setLoading(false);
     }
   };
 
   return (
-    <div className="flex items-center justify-center bg-gray-100 ">
-      <form onSubmit={handleSubmit} className="p-6 bg-white shadow-lg rounded-lg max-w-md w-full">
-        <h2 className="text-2xl font-bold mb-4 text-center">Login</h2>
-        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
-        <div className="mb-4">
-          <label htmlFor="usernameOrEmail" className="block text-sm font-medium text-gray-700">
-            Username or Email
-          </label>
-          <input
-            type="text"
-            name="usernameOrEmail"
-            value={formData.usernameOrEmail}
-            onChange={handleInputChange}
-            required
-            className="mt-1 px-3 py-2 border border-gray-300 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-        <div className="mb-4">
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-            Password
-          </label>
-          <input
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleInputChange}
-            required
-            className="mt-1 px-3 py-2 border border-gray-300 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-        <button
-          type="submit"
-          className="w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
-          disabled={loading}
+    <motion.form
+      onSubmit={handleSubmit(onSubmit)}
+      className="p-6 bg-[#183D3D] rounded-lg max-w-md w-full shadow-lg"
+      initial={{
+        opacity: 0,
+        scale: 0.6,
+        x: 100,
+        y: 100,
+        rotate: 15,
+      }}
+      animate={{
+        opacity: 1,
+        scale: 1,
+        x: 0,
+        y: 0,
+        rotate: 0,
+      }}
+      transition={{
+        duration: 1,
+        ease: [0.68, -0.55, 0.27, 1.55],
+        type: "spring",
+        stiffness: 90,
+        damping: 10,
+      }}
+    >
+      <h2 className="text-2xl font-bold mb-4 text-center text-[#e9eeec]">
+        Login
+      </h2>
+      <div className="mb-4">
+        <label
+          htmlFor="usernameOrEmail"
+          className="block text-sm font-medium text-white"
         >
-          {loading ? "Logging in..." : "Login"}
-        </button>
-      </form>
-    </div>
+          Enter your Username or Email
+        </label>
+        <input
+          type="text"
+          {...register("usernameOrEmail", { required: "Username or Email is required" })}
+          className="mt-1 px-3 py-2 border border-gray-300 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-[#21684e]"
+        />
+        {errors.usernameOrEmail && (
+          <p className="text-red-500 text-sm">{errors.usernameOrEmail.message}</p>
+        )}
+      </div>
+      <div className="mb-4">
+        <label
+          htmlFor="password"
+          className="block text-sm font-medium text-white"
+        >
+          Enter your Password
+        </label>
+        <input
+          type="password"
+          {...register("password", { required: "Password is required" })}
+          className="mt-1 px-3 py-2 border border-gray-300 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-[#21684e]"
+        />
+        {errors.password && (
+          <p className="text-red-500 text-sm">{errors.password.message}</p>
+        )}
+      </div>
+      <motion.button
+        type="submit"
+        className="w-full px-6 py-2 text-white bg-[#21684e] rounded hover:bg-white hover:text-[#21684e] transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-[#93B1A6] focus:ring-opacity-75"
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+      >
+        Login
+      </motion.button>
+    </motion.form>
   );
 };
 

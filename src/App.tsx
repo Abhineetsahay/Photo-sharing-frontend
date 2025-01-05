@@ -5,7 +5,7 @@ import User from "./Pages/User";
 
 const App=()=>{
   return(
-    <div>
+    <div className="bg-[#183D3D]">
       <Routes>
         <Route path="/" element={<Home/>}/>
         <Route path="/authorise" element={<Authorize/>}/>
